@@ -1,0 +1,116 @@
+---
+title: "Tarea: Sesión 3"
+output: html_notebook
+---
+<br><br>
+```{r}
+library(dplyr)
+```
+
+### Parte 01
+
+La tabla de datos del archivo huracanes.csv contiene información sobre los 35 huracanes
+más intensos del mundo que se tienen registrados (hasta el año 2006). A partir de estos
+datos, realice lo siguiente: <br>
+
+```{r}
+headers <- c("ranking", "nombre", "presion", "lugar", "ano")
+
+huracanes <- read.csv("huracanes.csv", encoding = "UTF-8", col.names = headers, sep = ";")
+head(huracanes, 10)
+```
+
+1. Realice una tabla de datos agrupados para la variable Presión/mbar usando Scott o
+Freedman para el número de categorías.<br>
+
+```{r}
+histograma = function(X) {
+  k = nclass.scott(X)
+    
+    
+  Rango = ceiling(max(X) - min(X))  #Cálculo rango
+  a = round(Rango/k, 1)  #Cálculo ancho de clase.
+  c = abs(round(a * k - Rango, 1))
+    
+  #Cálculo límites de clase inferiores
+  LimClasInf = numeric(k)  
+  LimClasInf[1] = min(X) - c/2
+  for (i in 2:k) {
+        LimClasInf[i] = LimClasInf[i - 1] + a
+  }
+  LimClasInf = round(LimClasInf, 2)
+  
+  #Cálculo limites de clase superiores
+  LimClasSup = numeric(k)  
+  LimClasSup[1] = LimClasInf[1] + a
+  for (i in 2:k) {
+      LimClasSup[i] = LimClasSup[i - 1] + a
+  }
+  LimClasSup = round(LimClasSup, 2)
+  
+  #Cálculo marcas de clase
+  MarClas = numeric(k)  
+  for (i in 1:k) {
+      MarClas[i] = (LimClasInf[i] + LimClasSup[i])/2
+  }
+  
+  MarClas = round(MarClas, 2)
+  
+  Freq = numeric(k)
+  for (i in 1:k) {
+      Freq[i] = length(X[X >= LimClasInf[i] & X < LimClasSup[i]])
+  }
+  
+  FreqAc = cumsum(Freq)  #Cálculo Frecuencias Acumuladas
+  Rel = round(Freq/sum(Freq), 4)  #Cálculo Frecuencias Relativas
+  RelAc = round(cumsum(Rel), 4)  #Cálculo de Frecuencias Relativas Acumuladas 
+  
+  # Tabla de Frecuencias
+  TabFreq = data.frame(LimClasInf, LimClasSup, MarClas, Freq, FreqAc, Rel, 
+      RelAc)
+  print(TabFreq)
+  
+  par(mfrow = c(1, 2))
+  
+  # Histograma con Polígono de Frecuencias
+  TabFreq.bar = barplot(TabFreq$Freq, space = 0, font = 2, col.main = "darkgreen", 
+      main = "Histograma y Polígono de Frecuencias", xlab = "Datos", ylab = "Frecuencias", 
+      names.arg = MarClas, col = terrain.colors(8))
+  lines(x = TabFreq.bar, y = TabFreq$Freq, col = "red")
+  points(x = TabFreq.bar, y = TabFreq$Freq, col = "red")
+  
+  # Generando Ojiva
+  plot(TabFreq$MarClas, TabFreq$RelAc, col = "red", ylab = "Frecuencias Relativas Acumuladas", 
+      xlab = "Datos")
+  lines(TabFreq$MarClas, TabFreq$RelAc, col = "red")
+  title(main = "Ojiva", col.main = "darkgreen")
+}
+```
+
+```{r}
+
+```
+
+
+```{r}
+set.seed(3211)
+
+X <- round(rnorm(
+  nrow(huracanes),
+  mean(huracanes[,"presion"]),
+  sd(huracanes[,"presion"], na.rm = FALSE))) 
+
+histograma(X) 
+```
+
+2. Para la tabla de datos agrupados creada en al paso anterior, calcule la media, la
+media y la moda. (Estos resultados los puede automatizar e R o hacer los cálculos
+manualmente).<br>
+3. Genere el histograma para los datos agrupados junto con su respectivo polígono de
+frecuencias, así como los gráficos de ojiva “mayor que” y “menor qué”. Para este
+último, se requiere hacer una modificación en el script trabajado en clases.<br>
+4. Para el gráfico de Histograma, escoja una secuencia de colores de su agrado, usando
+la instrucción col = sequential_hcl(k, "Purples 3"). <br>
+
+
+
