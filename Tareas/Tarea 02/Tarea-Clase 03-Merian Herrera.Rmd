@@ -87,28 +87,19 @@ histograma = function(X) {
 }
 ```
 
-```{r}
-
-```
-
 
 ```{r}
-set.seed(3211)
-
-X <- round(rnorm(
-  nrow(huracanes),
-  mean(huracanes[,"presion"]),
-  sd(huracanes[,"presion"], na.rm = FALSE))) 
-
-histograma(X) 
+histograma(huracanes[,"presion"]) 
 ```
 
 2. Para la tabla de datos agrupados creada en al paso anterior, calcule la media, la
 media y la moda. (Estos resultados los puede automatizar e R o hacer los cálculos
 manualmente).<br>
+
 3. Genere el histograma para los datos agrupados junto con su respectivo polígono de
 frecuencias, así como los gráficos de ojiva “mayor que” y “menor qué”. Para este
 último, se requiere hacer una modificación en el script trabajado en clases.<br>
+
 4. Para el gráfico de Histograma, escoja una secuencia de colores de su agrado, usando
 la instrucción col = sequential_hcl(k, "Purples 3"). <br>
 
