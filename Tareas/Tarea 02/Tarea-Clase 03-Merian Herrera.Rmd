@@ -5,6 +5,7 @@ output: html_notebook
 <br><br>
 ```{r}
 library(dplyr)
+library(colorspace)
 ```
 
 ### Parte 01
@@ -17,14 +18,14 @@ datos, realice lo siguiente: <br>
 headers <- c("ranking", "nombre", "presion", "lugar", "ano")
 
 huracanes <- read.csv("huracanes.csv", encoding = "UTF-8", col.names = headers, sep = ";")
-head(huracanes, 10)
+head(huracanes, 35)
 ```
 
 1. Realice una tabla de datos agrupados para la variable Presión/mbar usando Scott o
 Freedman para el número de categorías.<br>
 
 ```{r}
-histograma = function(X) {
+tabla_frecuencia_acumulada = function(X) {
   k = nclass.scott(X)
     
     
@@ -35,6 +36,7 @@ histograma = function(X) {
   #Cálculo límites de clase inferiores
   LimClasInf = numeric(k)  
   LimClasInf[1] = min(X) - c/2
+  
   for (i in 2:k) {
         LimClasInf[i] = LimClasInf[i - 1] + a
   }
@@ -43,9 +45,11 @@ histograma = function(X) {
   #Cálculo limites de clase superiores
   LimClasSup = numeric(k)  
   LimClasSup[1] = LimClasInf[1] + a
+  
   for (i in 2:k) {
       LimClasSup[i] = LimClasSup[i - 1] + a
   }
+  
   LimClasSup = round(LimClasSup, 2)
   
   #Cálculo marcas de clase
@@ -68,28 +72,53 @@ histograma = function(X) {
   # Tabla de Frecuencias
   TabFreq = data.frame(LimClasInf, LimClasSup, MarClas, Freq, FreqAc, Rel, 
       RelAc)
-  print(TabFreq)
   
-  par(mfrow = c(1, 2))
-  
-  # Histograma con Polígono de Frecuencias
-  TabFreq.bar = barplot(TabFreq$Freq, space = 0, font = 2, col.main = "darkgreen", 
-      main = "Histograma y Polígono de Frecuencias", xlab = "Datos", ylab = "Frecuencias", 
-      names.arg = MarClas, col = terrain.colors(8))
-  lines(x = TabFreq.bar, y = TabFreq$Freq, col = "red")
-  points(x = TabFreq.bar, y = TabFreq$Freq, col = "red")
-  
-  # Generando Ojiva
-  plot(TabFreq$MarClas, TabFreq$RelAc, col = "red", ylab = "Frecuencias Relativas Acumuladas", 
-      xlab = "Datos")
-  lines(TabFreq$MarClas, TabFreq$RelAc, col = "red")
-  title(main = "Ojiva", col.main = "darkgreen")
+  return(list("TabFreq" = TabFreq, "MarClas" = MarClas))
 }
+  
 ```
 
 
 ```{r}
-histograma(huracanes[,"presion"]) 
+histograma <- function(TabFreq, MarClas, color_palette="Purples 3"){
+  par(mfrow = c(1, 2))
+  
+  # Histograma con Polígono de Frecuencias
+  TabFreq.bar = barplot(TabFreq$Freq, 
+                        space = 0, 
+                        font = 2, 
+                        col.main = "Black",
+                        main = "Histograma y Polígono de Frecuencias", 
+                        xlab = "Datos", 
+                        ylab = "Frecuencias", 
+                        names.arg = MarClas, 
+                        col = sequential_hcl(6, color_palette))
+  
+  lines(x = TabFreq.bar, y = TabFreq$Freq, col = "red")
+  points(x = TabFreq.bar, y = TabFreq$Freq, col = "red")
+}
+  
+ojiva <- function(TabFreq){
+  par(mfrow = c(1, 2))
+  
+  # Generando Ojiva
+  plot(TabFreq$MarClas, 
+       TabFreq$RelAc, 
+       col = "red", 
+       ylab = "Frecuencias Relativas Acumuladas", 
+      xlab = "Datos")
+  
+  lines(TabFreq$MarClas, TabFreq$RelAc, col = "red")
+  title(main = "Ojiva 'Menor que'", col.main = "Black")
+}
+  
+```
+
+
+
+```{r}
+calculos <- tabla_frecuencia_acumulada(huracanes[,"presion"])
+calculos$TabFreq
 ```
 
 2. Para la tabla de datos agrupados creada en al paso anterior, calcule la media, la
@@ -100,8 +129,11 @@ manualmente).<br>
 frecuencias, así como los gráficos de ojiva “mayor que” y “menor qué”. Para este
 último, se requiere hacer una modificación en el script trabajado en clases.<br>
 
-4. Para el gráfico de Histograma, escoja una secuencia de colores de su agrado, usando
-la instrucción col = sequential_hcl(k, "Purples 3"). <br>
+```{r}
+histograma(calculos$TabFreq, calculos$MarClas, "OrYel")
+ojiva(calculos$TabFreq)
+```
+
 
 
 
