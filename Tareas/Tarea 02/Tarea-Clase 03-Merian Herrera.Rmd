@@ -3,10 +3,18 @@ title: "Tarea: Sesión 3"
 output: html_notebook
 ---
 <br><br>
+
+#### Estudiante:
+#### - Merian Herrera Fuentes
+#### - 207180364
+#### - meryann68@gmail.com
+
 ```{r}
 library(dplyr)
 library(colorspace)
 ```
+
+
 
 ### Parte 01
 
@@ -73,7 +81,8 @@ tabla_frecuencia_acumulada = function(X) {
   TabFreq = data.frame(LimClasInf, LimClasSup, MarClas, Freq, FreqAc, Rel, 
       RelAc)
   
-  return(list("TabFreq" = TabFreq, "MarClas" = MarClas))
+  return(list("TabFreq" = TabFreq, "MarClas" = MarClas, "LimClasInf" = LimClasInf, 
+              "LimClasSup" = LimClasSup, "Freq" = Freq, "RelAc" = RelAc))
 }
   
 ```
@@ -125,6 +134,28 @@ calculos$TabFreq
 media y la moda. (Estos resultados los puede automatizar e R o hacer los cálculos
 manualmente).<br>
 
+```{r}
+N <- sum(calculos$Freq) # Total
+L.inf <- calculos$LimClasInf[1] # Límite real inferior de la clase que contiene a la mediana.
+c <- calculos$LimClasSup[1] - calculos$LimClasInf[1] # Tamaño del intervalo que tiene a la mediana
+F.mediana <- calculos$Freq[1]
+
+# ----MEDIA
+media <- sum(calculos$MarClas *  calculos$Freq)/N
+paste("La media de la tabla de frecuencia es", round(media, 4))
+
+# ----MEDIANA
+mediana <- L.inf + ((((N/2) - 0)/F.mediana) * c)
+paste("La mediana de la tabla de frecuencia es", round(mediana, 4))
+
+# ----MODA
+d1 <- calculos$Freq[1]
+d2 <- calculos$Freq[1] - calculos$Freq[2]
+moda <- L.inf + ((d1/(d1+d2)) * c)
+paste("La moda de la tabla de frecuencia es", round(moda, 4))
+```
+
+
 3. Genere el histograma para los datos agrupados junto con su respectivo polígono de
 frecuencias, así como los gráficos de ojiva “mayor que” y “menor qué”. Para este
 último, se requiere hacer una modificación en el script trabajado en clases.<br>
@@ -134,6 +165,33 @@ histograma(calculos$TabFreq, calculos$MarClas, "OrYel")
 ojiva(calculos$TabFreq)
 ```
 
+```{r}
+
+relativas_acumuladas_menor <- sum(calculos$RelAc)
+current <- relativas_acumuladas_menor[1]
+
+for (i in head(calculos$RelAc, -1)) {
+  current <- current - i
+  relativas_acumuladas_menor <- c(relativas_acumuladas_menor, current)
+}
+relativas_acumuladas_menor <- round(relativas_acumuladas_menor / relativas_acumuladas_menor[1], 4)
+
+
+par(mfrow = c(1, 2))
+plot(calculos$MarClas, 
+     relativas_acumuladas_menor, 
+     col = "red", 
+     ylab = "Frecuencias Relativas Acumuladas", 
+     xlab = "Presion")
+
+lines(calculos$MarClas, 
+      relativas_acumuladas_menor, 
+      col = "red")
+
+title(main = "Ojiva", 
+      col.main = "Black")
+
+```
 
 
 
