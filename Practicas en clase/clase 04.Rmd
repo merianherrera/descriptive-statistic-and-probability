@@ -1,0 +1,330 @@
+---
+title: "Graficos"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+# Gráficos de Barras
+
+## Requerimientos:
+```{r message=FALSE}
+library(tidyverse)
+library(ggalt) # para graficar los lollipop
+library(datos) # bases de datos para trabajar
+```
+
+
+
+```{r echo=TRUE}
+
+datP26 <- read.csv("NM_P26h.csv", 
+                   header = TRUE, 
+                   sep = ';', 
+                   dec = ',', 
+                   row.names = 1)
+print(datP26)
+
+barplot(as.matrix(datP26))
+
+barplot(as.matrix(datP26), 
+        xlab = "Test aplicado", 
+        col = c("red", "yellow","blue","orange","green","gray"), 
+        beside = T, 
+        ylim = c(0, 1030), 
+        legend = row.names(datP26))
+
+# Cambien beside = F
+
+barplot(as.matrix(datP26), 
+        xlab = "Test aplicado", 
+        col = c("red", "yellow","blue","orange","green","gray"), 
+        beside = T, 
+        xlim = c(0, 1030), 
+        legend = row.names(datP26), 
+        horiz = T, width = 3)
+```
+```{r}
+
+datP26t <- t(datP26)
+head(datP26t)
+
+barplot(as.matrix(datP26t), 
+        xlab = "Test aplicado", 
+        col = c("blue","green"), 
+        beside = T, 
+        ylim = c(0, 1030), 
+        legend = row.names(datP26t))
+```
+
+
+*legend()* siempre nos pide siempre los siguientes argumentos.
+
+- *legend:* Las etiquetas de los datos que queremos describir con la leyenda. Por ejemplo, si tenemos cuatro categorías a describir, proporcionamos un vector de cuatro cadenas de texto.
+- *fill:* Los colores que acompañan a las etiquetas definidas con legend. Estos colores tienen que coincidir con los que hemos usado en el gráfico.
+- *x y y:* Las coordenadas en pixeles, en las que estará ubicada la leyenda. Podemos dar como argumento a x alguno de los siguientes, para ubicar automáticamente la leyenda: “bottomright”, “bottom”, “bottomleft”, “left”, “topleft”, “top”, “topright”, “right”, “center”.
+title: Para poner título a la leyenda.
+
+```{r}
+millas_clase <- millas$clase
+table(millas_clase)
+
+barplot(table(millas_clase), 
+        xlab = "Test aplicado", 
+        col = c("red", "yellow","blue","orange","green","gray"), 
+        beside = T, 
+        ylim = c(0, 100))
+
+legend(x = "topright", 
+       legend = row.names(table(millas_clase)), 
+       fill = c("red", "yellow","blue","orange","green","gray")) 
+
+
+summary(millas_clase)
+str(millas)
+
+```
+Entre las variables de millas se encuentran:
+
+- *motor:* tamaño del motor del automóvil, en litros.
+
+- *autopista:* eficiencia del uso de combustible de un automóvil encarretera, en millas por galón. Al recorrer la misma distancia, un automóvil de baja eficiencia consume más combustible que un automóvil de alta eficiencia.
+
+- *Formato General:*
+
+ggplot(data = <DATOS>) +
+  <GEOM_FUNCIÓN>(mapping = aes(<MAPEOS>))
+  
+A continuación, echemos un vistazo a un gráfico de barras. Los gráficos de barras parecen simples, pero son interesantes porque revelan algo sutil sobre los gráficos. Considera un gráfico de barras básico, como uno realizado con *geom_bar()*. El siguiente gráfico muestra la cantidad total de diamantes en el conjunto de datos diamantes, agrupados por la variable corte. El conjunto de datos diamantes se encuentra en el paquete datos y contiene información sobre ~ 54000 diamantes, incluido el precio, el quilate, el color, la claridad y el corte de cada uno El gráfico muestra que hay más diamantes disponibles con cortes de alta calidad que con cortes de baja calidad.
+  
+```{r}
+str(diamantes)
+diamante <- diamantes
+ggplot(data = diamantes) +
+  geom_bar(mapping = aes(x = corte))
+
+ggplot(data = diamantes) +
+  geom_bar(mapping = aes(x = claridad)) # aes: define una variable para la estética
+
+```
+
+Si se desea ver solo las proporciones, en lugar de los valores netos:
+
+```{r}
+
+ggplot(data = diamantes) +
+  geom_bar(mapping = aes(x = corte, y = ..prop.., group = 1))
+
+```
+El siguiente gráfico muestras estadísticas resumen como max, min y mediana de los datos profundidad, según clasificación según corte
+
+```{r}
+
+ggplot(data = diamantes) +
+  stat_summary(
+    mapping = aes(x = corte, y = profundidad),
+    fun.ymin = min,
+    fun.ymax = max,
+    fun.y = median
+  )
+
+```
+
+Para colorear los gráficos, se puede usar como referencia un vector, que podría ser alguna de las variables de la base de datos.
+
+Tome en cuenta que el parámetro colour se refierea al borde, pero si lo que desea es colorear la barra, debe usar fill
+
+```{r}
+ggplot(data = diamantes) +
+  geom_bar(mapping = aes(x = corte, colour = corte))
+
+ggplot(data = diamantes) +
+  geom_bar(mapping = aes(x = corte, fill = corte))
+
+
+```
+
+
+Asignemos otra variable para fill. Las barras están apiladas
+
+```{r}
+ggplot(data = diamantes) +
+  geom_bar(mapping = aes(x = corte, fill = claridad))
+```
+
+El apilamiento se realiza automáticamente mediante el ajuste de posición especificado por el argumento position. Explore otras opciones para position: "identity", "dodge", "fill"
+
+
+
+```{r}
+ggplot(data = diamantes, mapping = aes(x = corte, fill = claridad)) +
+  geom_bar(position = "identity")
+# barras quedan superpuestas, una detrás de la otra. El alpha es para darle transparencia para que se vean las barras que están detrás.
+
+ggplot(data = diamantes, mapping = aes(x = corte, colour = claridad)) +
+  geom_bar(fill = NA, position = "identity")
+```
+
+
+```{r}
+ggplot(data = diamantes) +
+  geom_bar(mapping = aes(x = corte, fill = claridad), position = "fill")
+```
+
+
+
+```{r}
+ggplot(data = diamantes) +
+  geom_bar(mapping = aes(x = corte, fill = claridad), position = "dodge")
+```
+
+```{r}
+bar <- ggplot(data = diamantes) +
+  geom_bar(
+    mapping = aes(x = corte, fill = corte),
+    show.legend = F,
+    width = 0.66
+  ) +
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL)
+
+bar + coord_flip()
+bar + coord_polar()
+```
+
+
+```{r}
+library(dplyr)
+
+diaman_dat <-diamantes %>%
+  group_by(corte) %>% # agrupar todo por clase
+summarise(conteo = n())
+diaman_dat
+
+g6 <- ggplot(diaman_dat, aes(y = reorder(corte, conteo), x = conteo))
+
+g6 +
+  geom_lollipop(point.colour = "steelblue", point.size = 2, horizontal = TRUE)
+```
+
+Verticalmente:
+
+```{r}
+g6 <- ggplot(diaman_dat, aes(y = conteo , x = reorder(corte, conteo)))
+
+g6 +
+  geom_lollipop(point.colour = "steelblue", point.size = 2)
+
+
+```
+
+
+
+
+```{r}
+g6 <- ggplot(diaman_dat, aes(y = conteo , x = reorder(corte, conteo)))
+             
+g6 +
+  geom_lollipop(point.colour = "steelblue", point.size = 13, size = 1) +
+  geom_text(aes(label = conteo), color = "white") +
+  theme_minimal() +
+  xlab("Clase") +
+  ylab("conteo")
+```
+
+Grafico de pastel 
+Agregaremos una posición para la etiqueta o label:
+
+```{r}
+diaman_dat <-diamantes %>%
+  group_by(corte) %>% # agrupar todo por clase
+summarise(conteo = n())
+diaman_dat
+
+count.data <- diaman_dat %>%
+  arrange(desc(conteo)) %>%
+  mutate(porcent = round(conteo/sum(conteo)*100,1))
+count.data
+
+count.data <- count.data %>%
+  arrange(desc(corte)) %>%
+  mutate(lab.ypos = cumsum(porcent) - 0.5*porcent)
+count.data
+
+```
+
+
+Crearemos un grafico de pastel (pie) usando verbos de ggplot2 . 
+
+Key function: geom_bar() + coord_polar().
+Agregar texto a las etiquetas: geom_text()
+Cambio del relleno del color de forma manual: scale_color_manual()
+Apply theme_void() para eliminar los ejes, el background, etc
+
+```{r}
+mycols <- c("#0073C2FF", "#EFC000FF", "#868686FF", "#CD534CFF", "#00FF00")
+
+ggplot(count.data, aes(x = "", y = porcent, fill = corte)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+  geom_text(aes(y = lab.ypos, label = porcent), color = "white")+
+  scale_fill_manual(values = mycols) +
+  theme_void()
+```
+
+Gráfico de dona
+
+Cambios a considerar:
+1. x = 2
+2. Eliminar width en geom_bar()
+3. agregar xlim(0.5,2.5)
+
+El hoyo se crea con 1 y 3'
+```{r}
+count.data
+```
+
+
+```{r}
+
+ggplot(count.data, aes(x = 2, y = porcent, fill = corte)) +
+  geom_bar(stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+  geom_text(aes(y = lab.ypos, label = porcent), color = "white")+
+  scale_fill_manual(values = mycols) +
+  theme_void()+
+  xlim (0.5,2.5)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,308 @@
+---
+output: html_notebook
+---
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+
+<center><img src="logo.png" width="500"/></center>
+
+<center><h2><b>Tarea: Sesión 4 y 5<h2></b></center>
+
+<h4><b>Estudiante:</b> Merian Herrera Fuentes <br></h4>
+
+```{r  message=FALSE}
+library(nycflights13)
+library(datos)
+library(tidyverse)
+library(ggalt)
+library(dplyr)
+library(colorspace)
+library(plotly)
+```
+
+<br>
+<div style="background-color:#1D2951;color:white;padding:3px;marging:10px;">
+  <h4><b>&nbsp;&nbsp;&nbsp;I PARTE: Gráficos (30 puntos)</b></h4>
+</div>
+<br>
+
+Cargue el paquete "datos" en R el cual contiene varias bases de datos que pueden ser
+utilizadas para el trabajo con los temas del curso. Trabaje con los datos de "vuelos" realice
+lo siguiente:<br><br>
+
+```{r}
+vuelos <- vuelos
+head(vuelos, 50)
+```
+
+
+**a.** Brevemente explique de qué tratan los datos.<br>
+
+> Los datos del dataframe "vuelos" corresponden a informacion de vuelos del año 2013, con mes y día. Tambien se incluye información sobre horarios de salida, llegada, asímismo información sobre atrasos en los vuelos e información sobre el origen y el destino de los mismos.
+
+- **anio: ** Integer, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(anio) %>% 
+  summarise(count = n()) 
+```
+
+- **mes: ** Integer, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(mes) %>% 
+  summarise(count = n()) 
+```
+
+- **dia: ** Integer, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(dia) %>% 
+  summarise(count = n()) 
+```
+
+- **horario_salida: ** Integer, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(horario_salida) %>% 
+  summarise(count = n()) 
+```
+
+- **salida_programada: ** Integer, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(salida_programada) %>% 
+  summarise(count = n()) 
+```
+
+- **atraso_salida: ** Integer, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(atraso_salida) %>% 
+  summarise(count = n()) 
+```
+
+- **horario_llegada: ** Integer, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(horario_llegada) %>% 
+  summarise(count = n()) 
+```
+
+- **llegada_programada: ** Integer, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(llegada_programada) %>% 
+  summarise(count = n()) 
+```
+
+- **atraso_llegada: ** Double, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(atraso_llegada) %>% 
+  summarise(count = n()) 
+```
+
+- **aerolinea: ** String, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(aerolinea) %>% 
+  summarise(count = n()) 
+```
+
+- **vuelo: ** Integer, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(vuelo) %>% 
+  summarise(count = n()) 
+```
+
+- **codigo_cola: ** String, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(codigo_cola) %>% 
+  summarise(count = n()) 
+```
+
+- **origen: ** String, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(origen) %>% 
+  summarise(count = n()) 
+```
+
+- **destino: ** String, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(destino) %>% 
+  summarise(count = n()) 
+```
+
+- **tiempo_vuelo: ** Double, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(tiempo_vuelo) %>% 
+  summarise(count = n()) 
+```
+
+- **distancia: ** Double, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(distancia) %>% 
+  summarise(count = n()) 
+```
+
+- **hora: ** Double, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(hora) %>% 
+  summarise(count = n()) 
+```
+
+- **minuto: ** Double, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(minuto) %>% 
+  summarise(count = n()) 
+```
+
+- **fecha_hora: ** Date, valores posibles:
+
+```{r}
+vuelos %>% 
+  group_by(fecha_hora) %>% 
+  summarise(count = n()) 
+```
+
+**b.** Realice un gráfico de barras verticales con alguna de las variables presentes en el
+dataset vuelos. Esta variable debe cumplir los requerimientos explicados en clase. <br>
+
+```{r}
+colores_grafico <- c("coral1", "chartreuse2","cadetblue","darkgoldenrod1","brown2","bisque2", "burlywood4", "chocolate3", "darkolivegreen1", "gold2", "firebrick1", "deeppink2", "darkturquoise", "greenyellow", "mediumvioletred", "mediumorchid4")
+
+barplot(table(vuelos$mes), 
+        xlab = "NUMERO DE VUELOS POR MES, AÑO 2013", 
+        col = colores_grafico, 
+        beside = F)
+
+#legend(x = "topright", 
+#       legend = row.names(table(vuelos$mes)), 
+#       fill = colores_grafico) 
+```
+
+> En el grafico anterior podemos observar el numero de vuelos que han salido por mes, se puede observar, que el mes donde menos vuelos han salido es Febrero con **24951** vuelos y el mes donde mas vuelos han salido es Julio con **29425** vuelos.
+
+**c.** Realice un gráfico de barras horizontal con alguna de las variables. Al igual que el
+caso anterior, debe elegir una variable que se ajuste a los requerimientos discutidos
+en clase para este tipo de gráficos. <br>
+
+```{r}
+bar <- ggplot(data = vuelos) +
+  geom_bar(
+    mapping = aes(x = origen, fill = origen),
+    show.legend = F,
+    width = 0.66
+  ) +
+  theme(aspect.ratio = 1) +
+  labs(x = NULL, y = NULL)
+
+bar + coord_flip()
+```
+
+> En el grafico anterior podemos ver informacion sobre el origen de los vuelos para el año 2013, como se puede observar los vuelos salieron unicamente de 3 destinos diferentes, el lugar donde mas vuelos han salido es EWR con **120385** vuelos, mientras que el lugar donde menos vuelos han salido es LGA con **104662**.
+
+**d.** Elija una de las variables y construya un gráfico de pastel. La variable debe tener las
+condiciones apropiadas. <br>
+
+
+```{r}
+
+aerolinea_datos <- vuelos %>%
+  group_by(aerolinea) %>% # agrupar todo por clase
+summarise(conteo = n())
+
+count.data <- aerolinea_datos %>%
+  arrange(desc(conteo)) %>%
+  mutate(porcent = round(conteo/sum(conteo)*100,1))
+
+count.data <- count.data %>%
+  arrange(desc(aerolinea)) %>%
+  mutate(lab.ypos = cumsum(porcent) - 0.5*porcent)
+  
+ggplot(count.data, aes(x = "", y = porcent, fill = aerolinea)) +
+  geom_bar(width = 1, stat = "identity", color = "white") +
+  coord_polar("y", start = 0)+
+  geom_text(aes(y = lab.ypos, label = porcent), color = "white") +
+  scale_fill_manual(values = colores_grafico) +
+  theme_void()
+```
+
+> En el grafico anterior, un grafico de paste, podemos observar la distribucion de vuelos por aerolinea para el anno 2013, vemos que la aerolinea con mas vuelos gestionados es UA con 17.4% de vuelos.
+
+Tome en cuenta que para cada gráfico debe considerar las recomendaciones estudiadas en
+clases, las cuáles las pueden encontrar en la presentación. Para cada uno de los gráficos,
+haga una breve interpretación de lo observado.
+
+<br>
+<div style="background-color:#1D2951;color:white;padding:3px;marging:10px;">
+  <h4><b>&nbsp;&nbsp;&nbsp;II PARTE: Distribuciones de probabilidad VAD ( 32 puntos)</b></h4>
+</div>
+
+En cada una de las siguientes situaciones. Calcule lo que se le pide usando R. Además, para
+cada problema debe calcular la media, la varianza y realizar el gráfico de la distribución: <br><br>
+
+**Binomial: (14 pts)**<br>
+1. Suponga que el 30% de los estudiantes del ITCR son mujeres. Si se toma una muestra de 10
+mujeres al azar.<br>
+**a.** Escriba la fórmula de la distribución que modela esta situación (2pts)<br>
+**b.** ¿Cuál es la probabilidad de que en la muestra haya al menos 4 mujeres?<br>
+**c.** ¿Cuál es la probabilidad de que en la muestra haya más de 4 y a lo sumo 8 mujeres?<br>
+**d.** ¿Cuál es la probabilidad de que haya exactamente 5 mujeres en la muestra?<br>
+**e.** Determine la media y la desviación estándar que se esperaría ver en la muestra.<br>
+<br>
+
+**Hipergeométrica: (10 pts)**<br>
+2. Constantemente, la gente que posee un vehículo vive quejándose de las fallas mecánicas
+que estos presentan, tanto, porque es un gasto tanto para sus bolsillos como por las
+implicaciones en la disponibilidad de uso.<br>
+Popularmente, se tiene la creencia de que una persona podría olvidarse de este tipo de
+imprevistos si tuviese la capacidad de pago para adquirir un vehículo nuevo de agencia, 
+situación que no es tan cierta. Suponga que en Costa Rica, la compañía de autos A debe
+hacer efectiva su garantía para algunos usuarios que adquirieron de agencia, uno de sus
+autos modelo X. Sabiendo que para el mes de enero pasado, disponía de 30 vehículos de
+dicho modelo X en sus agencias donde 3 de ellos venía con un desperfecto de fábrica y que
+durante ese mes logró vender 8 de esos autos, realice lo siguiente: <br>
+**a.** Verifique que se cumple la condición para que sea hipergeométrica y escriba la
+ecuación de la distribución que modela esta situación.<br>
+**b.** ¿Cuál es la probabilidad de que ninguno de los autos vendidos requiera la garantía
+durante el primer año?.<br>
+**c.** Determine la probabilidad de que al menos dos de los autos vendidos requiera
+hacer uso de la garantía.<br>
+
+**Geométrica: (8 pts)**
+3. Un juego consiste en gira runa ruleta que tiene 3 opciones de premio y 13 opciones no
+premio. Una persona que juegue la ruleta ganará si al girarla obtiene la opción “premio”
+antes del cuarto intento.<br>
+**a.** Escriba la fórmula de la distribución que modela esta situación.<br>
+**b.** Calcule la probabilidad de si una persona gane en una jugada en la ruleta.<br>
+<br>
+

@@ -1,0 +1,141 @@
+---
+title: "DistribucionesVAD"
+output: html_notebook
+---
+# DISTRIBUCIÓN DE PROBABILIDAD BINOMIAL
+
+Seguidamente se presentan los principales comandos que se deben emplear para el calculo de probabilidades de modelos binomiales
+
+## Distribución de probabilidad: devuelve los resultados de la función de densidad
+
+dbinom(x, size, prob, log = F)
+
+## Distribución de probabilidad acumulada 
+
+pbinom(q, size, prob, lower.tail = T, log.p = F)
+
+## Devuelve resultados de los cuantiles de la binomial
+
+qbinom(p, size, prob, lower.tail = T, log.p = F)
+
+## 	Devuelve un vector de valores binomiales aleatorios.
+
+rbinom(n, size, prob)
+
+Los argumentos que podemos pasar a las funciones expuestas en la anterior tabla, son:
+
+x, q: Vector de cuantiles.
+p: Vector de probabilidades.
+n: Número de observaciones
+size: Números de ensayos(debe ser cero o más).
+prob: Probabilidad de éxito en cada ensayo.
+log, log.p: Parámetro booleano, si es TRUE, las probabilidades p se ofrecen como log(p).
+lower.tail: Parámetro booleano, si es TRUE (por defecto), las probabilidades son P[X ≤ x], de lo contrario, P [X > x].
+
+## Ejemplo
+
+Se lanza 7 veces un dado
+
+
+```{r}
+# Probabailidad de que el 5 salga 3 veces
+
+dbinom(3, 7, 1/6)
+
+# Probabilidad de que el 5 salga a lo sumo dos veces
+
+dbinom(c(2, 1, 0), 7, 1/6) # calcula las probabilidades para cada éxito indicado en el vector, pero si se desea sumar estas probabilidades, proceda como sigue
+
+sum(dbinom(c(2, 1, 0), 7, 1/6)) # Calcula la probabilidad acumulada de 2 o menos
+pbinom(2, size = 7, prob = 1/6) # otra manera más directa de calcular la probabilidad acumulada
+
+# Percentil 90 
+qbinom(c(0.90), size = 7, prob = 1/6)# Bajo el caso de dos exítos, se aumla el 90% de los resultados
+
+# Probabilidad de obtener más de dos 5 en 7 lanzamientos
+1 - pbinom(2, size = 7, prob = 1/6) # usando complemento
+pbinom(c(2), size = 7, prob = 1/6, lower.tail = F) # Usando fórmula directa
+
+
+
+```
+
+## Gráfico
+
+```{r}
+# OPC 1
+
+n = 7
+p = 1/6
+fx.binomial <- dbinom(0:n,n,p)
+facumulada <- pbinom(0:n,n,p)
+fx.binomial <- data.frame(x = 0:n,"F(X)" = fx.binomial,"SUM F(X)" = facumulada)
+fx.binomial 
+
+# par(mfrow=c(1,2))
+
+plot(fx.binomial$x, 
+     fx.binomial$F.X., 
+     type = "h", 
+     xlab = "Éxito", 
+     ylab = "f(x) Probabilidad", 
+     main ='Distribución  binomial.', 
+     col = terrain.colors(4))
+
+plot(fx.binomial$x, 
+     fx.binomial$SUM.F.X., 
+     type = "b", 
+     xlab = "Éxitos", 
+     ylab = "f(x) Probabilidad", 
+     main = 'Probabilidad acumulada', 
+     col = terrain.colors(6)) #pruebe Type = "s"
+
+# OPC 2
+n = 7
+x <- 0:n
+x
+prob <- dbinom(x,n,1/6)
+barplot(prob,col = "blue",
+        ylim = c(0,max(prob) + 0.1),
+        names.arg = x,
+        main = "Distribución Binomial\n(n = 7, p = 1/6)", 
+        width = 2)
+
+
+```
+
+Otras distribuciones siguen un patrón similar:
+
+Geométrica: geom
+Hipergeométrica: hyper
+Poisson: pois
+
+En la ayuda de R se pueden ver los parámetros de cada una de ellas.
+
+```{r}
+# EJEMPLO DISTRIBUCION BINOMIAL
+pbinom(0.95, 5, 0.05, lower.tail = F)
+```
+
+```{r}
+# EJEMPLO DISTRIBUCION HIPERGEOMETRICA
+
+# --- densidad
+
+dhyper(x = 4, # Exito
+       m = 40, # El total de lo que es exito
+       n = 10, # El total de lo que es error
+       k = 5) # El tamano de la muestra
+
+# --- distribucion
+# Probabiladad 
+phyper(4, # Exito
+       40, # El total de lo que es exito
+       10, # El total de lo que es error
+       5) # El tamano de la muestra
+
+
+```
+
+
+
