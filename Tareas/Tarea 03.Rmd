@@ -274,14 +274,70 @@ cada problema debe calcular la media, la varianza y realizar el gráfico de la d
 1. Suponga que el 30% de los estudiantes del ITCR son mujeres. Si se toma una muestra de 10
 mujeres al azar.<br>
 **a.** Escriba la fórmula de la distribución que modela esta situación (2pts)<br>
+
+$$p=0.3$$
+$$q=0.7$$
+$$p(x)=\binom{n}{x}p^{x}q^{n-x}$$
+
+$$p(x)=\binom{10}{x}0.3^{x}0.7^{10-x}$$
+
+
 **b.** ¿Cuál es la probabilidad de que en la muestra haya al menos 4 mujeres?<br>
+
+
+```{r}
+pbinom(3, size = 10, prob = 0.3, lower.tail = FALSE)
+```
+
 **c.** ¿Cuál es la probabilidad de que en la muestra haya más de 4 y a lo sumo 8 mujeres?<br>
+
+```{r}
+sum(dbinom(c(5,6,7,8), size = 10, prob = 0.3))
+
+pbinom(8, size = 10, prob = 0.3) - pbinom(4, size = 10, prob = 0.3)
+```
+
 **d.** ¿Cuál es la probabilidad de que haya exactamente 5 mujeres en la muestra?<br>
+
+```{r}
+dbinom(5, size = 10, prob = 0.3)
+```
+
 **e.** Determine la media y la desviación estándar que se esperaría ver en la muestra.<br>
+
+```{r}
+media <- 10 * 0.3 
+varianza <- 10 * 0.3 * 0.7
+desviacion_estandar <- round(sqrt(varianza), 4)
+
+paste("Media:", media)
+paste("Varianza:", varianza)
+paste("Desviacion Estandar:", desviacion_estandar)
+```
+
+
+**Grafico de distribuciones**
+
+```{r}
+#prob <- dbinom(5, size = 10, prob = 0.3)
+
+n = 5
+x <- 0:n
+
+probabilidad <- dbinom(x ,n, 0.3)
+barplot(prob,
+        col = colores_grafico,
+        ylim = c(0, max(probabilidad) + 0.1),
+        names.arg = x,
+        main = "Distribución Binomial", 
+        width = 2)
+```
+
 <br>
 
 **Hipergeométrica: (10 pts)**<br>
-2. Constantemente, la gente que posee un vehículo vive quejándose de las fallas mecánicas
+
+*2.* Constantemente, la gente que posee un vehículo vive quejándose de las fallas mecánicas
 que estos presentan, tanto, porque es un gasto tanto para sus bolsillos como por las
 implicaciones en la disponibilidad de uso.<br>
 Popularmente, se tiene la creencia de que una persona podría olvidarse de este tipo de
@@ -291,18 +347,72 @@ hacer efectiva su garantía para algunos usuarios que adquirieron de agencia, un
 autos modelo X. Sabiendo que para el mes de enero pasado, disponía de 30 vehículos de
 dicho modelo X en sus agencias donde 3 de ellos venía con un desperfecto de fábrica y que
 durante ese mes logró vender 8 de esos autos, realice lo siguiente: <br>
+
 **a.** Verifique que se cumple la condición para que sea hipergeométrica y escriba la
 ecuación de la distribución que modela esta situación.<br>
+
+ $$p(x)=\frac{\binom{S}{x}\binom{N-S}{n-x}}{\binom{N}{n}}$$
+ 
+ >  La condicion para aplicar la formula hipergeometrica se cumple, ya que la probabilidad de éxito cambia en cada ensayo y esta enfocada a experimentos sin reemplazo con es una población finita.
+
 **b.** ¿Cuál es la probabilidad de que ninguno de los autos vendidos requiera la garantía
 durante el primer año?.<br>
+
+```{r}
+dhyper(8, m = 27, n = 3, k = 8)
+```
+
 **c.** Determine la probabilidad de que al menos dos de los autos vendidos requiera
 hacer uso de la garantía.<br>
 
+```{r}
+#usando dhyper
+sum(dhyper(c(6,7,8), m = 27, n = 3, k = 8))
+
+#usando phyper
+phyper(5, m = 27, n = 3, k = 8, lower.tail = FALSE)
+```
+
+```{r}
+media <- round((8*27)/30, 4)
+varianza <- round(((8*27)*(30-27)*(30-8))/(30**2*(30-1)), 4)
+desviacion_estandar <- round(sqrt(varianza), 4)
+
+paste("Media:", media)
+paste("Varianza:", varianza)
+paste("Desviacion Estandar:", desviacion_estandar)
+```
+
+<br><br>
+
 **Geométrica: (8 pts)**
-3. Un juego consiste en gira runa ruleta que tiene 3 opciones de premio y 13 opciones no
+
+*3.* Un juego consiste en gira runa ruleta que tiene 3 opciones de premio y 13 opciones no
 premio. Una persona que juegue la ruleta ganará si al girarla obtiene la opción “premio”
 antes del cuarto intento.<br>
+
 **a.** Escriba la fórmula de la distribución que modela esta situación.<br>
+
+$$g(y;p)=p(y)=pq^{y-1}, y = 1,2,3,...$$
+
+
 **b.** Calcule la probabilidad de si una persona gane en una jugada en la ruleta.<br>
+
+```{r}
+sum(dgeom(c(0, 1, 2), prob = 0.1875))
+
+pgeom(2, prob = 0.1875)
+```
+
+```{r}
+media <- round(1/0.1875, 4)
+varianza <- round((1 - 0.1875)/0.1875 ** 2, 4)
+desviacion_estandar <- round(sqrt(varianza), 4)
+
+paste("Media:", media)
+paste("Varianza:", varianza)
+paste("Desviacion Estandar:", desviacion_estandar)
+```
+
 <br>
 
