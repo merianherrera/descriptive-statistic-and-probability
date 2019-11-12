@@ -1,0 +1,58 @@
+---
+output:
+  html_notebook: default
+---
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+
+<center><img src="logo.png" width="500"/></center>
+
+<center><h2><b>Tarea: Sesión 6 <h2></b></center>
+
+<h4><b>Estudiante:</b> Merian Herrera Fuentes <br></h4>
+
+```{r  message=FALSE}
+library(nycflights13)
+library(datos)
+library(tidyverse)
+library(ggalt)
+library(dplyr)
+library(colorspace)
+library(plotly)
+```
+
+<br>
+<div style="background-color:#1D2951;color:white;padding:3px;marging:10px;">
+  <h4><b>&nbsp;&nbsp;&nbsp;I PARTE: Distribuciones de probabilidad VAD ( 10 puntos C/problema)</b></h4>
+</div>
+<br>
+
+Resuelva cada una de las siguientes situaciones, calcule lo que se le pide usando R: 
+<br><br>
+
+**1. Un juego consiste en gira runa ruleta que tiene 3 opciones de premio y 13 opciones no premio. Una persona que juegue la ruleta ganará si al girarla obtiene la opción “premio” antes del cuarto intento. Calcule la probabilidad de si una persona juega la ruleta 12 veces, esta gane premio en más de la mitad de los intentos.**<br>
+Respuesta: 0,29312<br>
+
+```{r}
+probabilidad_01 <- pgeom(2,0.1875)
+round(pbinom(6, 12, probabilidad_01, lower.tail = F), 5)
+```
+
+**2. Suponga que en cada partido que disputa Keylor Navas recibe 10 remates directos, en cada remate tiene una probabilidad de 0.73 de detenerlo. El entrenador del equipo de Keylor considera que un marcador atípico es en el que reciben más de dos goles. Calcule la probabilidad de que, en un torneo de 15 partidos, el primer marcador atípico se tenga después del octavo partido.**<br>
+Respuesta: 0.002317052<br>
+
+```{r}
+probabilidad_02 <- pbinom(2, 10, 0.27, lower.tail = FALSE)
+sum(dgeom(c(8,9,10,11,12,13,14), prob = probabilidad_02))
+```
+
+**3. El número de cierres totales de la carretera de circunvalación a la altura de la rotonda de Garantías Sociales, siguen una distribución Poisson con media 2.4 cierres por día. Un día se considera como de tránsito pesado cuando la carretera debe cerrarse totalmente en más de 4 cuatro ocasiones. Durante los próximos 10 días, ¿cuál es la probabilidad de tener el primer día de tránsito pesado en alguno de los primeros 5 días?**<br>
+Respuesta: 0.39583191<br>
+
+```{r}
+probabilidad_03 <- ppois(c(4), 2.4, lower.tail = F)
+
+pgeom(4, prob = probabilidad_03)
+```
+

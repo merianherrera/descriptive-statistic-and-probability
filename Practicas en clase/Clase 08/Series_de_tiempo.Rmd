@@ -1,0 +1,344 @@
+---
+title: "Series de tiempo"
+output: html_notebook
+---
+
+
+
+```{r}
+library(forecast)
+
+```
+
+# Test de Normalidad de las diferencias de los datos
+
+```{r}
+data("LakeHuron")
+head(LakeHuron)
+# Test de normalidad
+plot(diff(log(LakeHuron)),type = "l")
+
+# Muestra posibles atipicidades
+plot(diff(LakeHuron),type = "l")
+
+# Hay que jugar un poco con los limites, porque a veces sale un poco cortado el grafico  o s eve muy pequenno si la escala es muy grande.
+hist(diff(LakeHuron),
+     prob = T,
+     ylim = c(0,0.55),
+     xlim = c(-5,5),
+     col = "red")
+
+lines(density(diff(LakeHuron)),lwd = 2)
+
+mu <- mean(diff(LakeHuron))
+mu
+
+sigma <- sd(diff(LakeHuron))
+sigma
+
+x <- seq(-40,40,length = 1000)
+min(x)
+max(x)
+
+y <- dnorm(x,mu,sigma)
+lines(x,y,lwd = 2,col = "blue")
+
+# Prueba de Shapiro
+
+df <- diff(LakeHuron)
+shapiro.test(df) # No hay evidencia suficiente para rechazar la hipotesis
+```
+
+```{r}
+# Grafico para mostrar la descompocision de una serie
+plot(stl(LakeHuron,
+         s.window = "periodic")) # No funciona porque no hay periodo o tiene muy pocos datos
+```
+
+
+Modelo ARIMA (p,d,q)(P,D,Q)
+
+```{r}
+# Se carga la base de Datos de Lake Hurón, que contine datos sobre los niveles de agua (en pies) de dicho lago desde 1875 a 1972 (datos anuales)
+
+data(LakeHuron)
+LakeHuron
+
+# Se crea el Peridiograma
+
+res <- spec.pgram(LakeHuron, log = "no") # ver cuales son los espectros mas grandes, y si hay ciclos, son puntos que debemos darle prioridad
+res 
+
+res$freq
+res$spec
+
+# Ordenar las frecuencias con respecto al espectro
+order(res$spec,res$freq,decreasing = TRUE)  
+
+# SE SELECCIONAN LAS PRIMERAS TRES POSICIONES
+
+# La posición 1 del order se debe ignorar, si queda dentro de las primeras tres posiciones
+
+max1 <- res$freq[3] # "3" sale del espectro ordenado
+max1
+
+max2 <- res$freq[13]
+max2
+
+max3 <- res$freq[9]
+max3
+
+# El primer "pico" ocurre en: 0.03
+abline(v = max1, 
+       lty = "dotted", 
+       col = "red")
+
+# Para el cálculo del períodos, se toma 1 como la frecuencia de la Serie, pues los datos son anuales
+# Esto implica que el periodo es:
+
+periodo1 <- 1/max1 # "1" porque los datos son anuales, si son mensuales se pone 12, si son diarios 365... cambia de acuerdo a la frecuencia de los datos.
+periodo1 # Muy grande para el tamaño de la serie
+
+# El segundo "pico" ocurre en: 0.13
+abline(v = max2, 
+       lty = "dotted",
+       col = "blue")
+
+# Esto implica que el periodo es:
+periodo2 <- 1/max2
+periodo2
+
+
+# El tercer "pico" ocurre en: 0.09
+abline(v = max3, 
+       lty = "dotted",
+       col = "magenta")
+
+# Esto implica que el periodo es:
+periodo3 <- 1/max3
+periodo3
+```
+
+
+```{r}
+# Creamos el modelo SARIMA(1,2,1)(2,1,0)
+# Con periodo = 11 (el que obtuvimos en los periodos de arriba). 33 lo descartamos porque era muy grande para este caso
+fit <- arima(LakeHuron,
+             order = c(1,2,1),
+             seasonal = list(order = c(2,1,0),
+                             period = 11))
+
+LH.pred <- predict(fit, 
+                   n.ahead = 8)
+LH.pred
+```
+
+
+```{r}
+# p=1 (Lineas que se salen del grafico "Patrial ACF")
+layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))
+
+plot(LakeHuron,
+     xlim = c(1875,1980),
+     ylim = c(575,584),
+     type = "o")
+
+lines(LH.pred$pred,
+      col = "red",
+      type = "o")
+
+lines(LH.pred$pred + 2*LH.pred$se,
+      col = "red",
+      lty = 3,
+      type = "o")
+
+lines(LH.pred$pred - 2*LH.pred$se,
+      col = "red",
+      lty = 3,
+      type = "o")
+
+acf(LakeHuron, 
+    main = "Autocorrelación Simple",
+    col = "black",
+    ylim = c(-1,1))
+
+pacf(LakeHuron,main = "Autocorrelación Parcial",
+     col = "black",
+     ylim = c(-1,1))
+```
+
+```{r}
+## SARIMA(2,2,1)(2,1,2)
+fit <- arima(LakeHuron,
+             order = c(2,2,1),
+             seasonal = list(order = c(2,1,2), period = 11))
+
+LH.pred <- predict(fit,n.ahead = 8) # 8 predicciones a futuro
+
+layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))
+
+plot(LakeHuron,
+     xlim = c(1875,1980),
+     ylim = c(575,584), type = "o")
+
+lines(LH.pred$pred,col = "green", type = "o")
+
+lines(LH.pred$pred + 2*LH.pred$se,
+      col = "green",
+      lty = 3, 
+      type = "o")
+
+lines(LH.pred$pred - 2*LH.pred$se,
+      col = "green",
+      lty = 3, 
+      type = "o")
+
+acf(LakeHuron, 
+    main = "Autocorrelación Simple",
+    col = "black",
+    ylim = c(-1,1))
+
+pacf(LakeHuron, 
+     main = "Autocorrelación Parcial",
+     col = "black",
+     ylim = c(-1,1))
+```
+
+
+```{r}
+prediccion <- forecast(fit, h = 30)
+plot(prediccion)
+
+```
+
+```{r}
+# Modelo para período 7 SARIMA(2,2,2)(3,3,3)
+
+fit <- arima(LakeHuron,order=c(2,2,2),seasonal=list(order=c(3,3,3),period=7))
+LH.pred<-predict(fit,n.ahead=8)
+layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))
+plot(LakeHuron,xlim=c(1875,1980),ylim=c(575,584),type="o")
+lines(LH.pred$pred,col="blue",type="o")
+lines(LH.pred$pred+2*LH.pred$se,col="blue",lty=3,type="o")
+lines(LH.pred$pred-2*LH.pred$se,col="blue",lty=3,type="o")
+acf(LakeHuron,main="Autocorrelación Simple",col="black",ylim=c(-1,1))
+pacf(LakeHuron,main="Autocorrelación Parcial",col="black",ylim=c(-1,1))
+```
+## Ejemplo Cajero
+
+```{r}
+caj104 <- read.csv("cajero104.csv", header = F, sep = ',', dec = '.' )
+
+# Iniciando el 1° de enero del 2008. Como los datos son diarios, la frecuencia es 365
+
+caj104 <- ts(caj104[,1],
+             start = c(2008,1), 
+             frequency = 365) # Si aqui nos da 7, son 7 dias
+# siembre hay que revisar en que formato esta nuestra serie de datos y hacer la conversion.
+
+period104 <- spec.pgram(caj104, log = "no")
+
+pos <- order(period104$spec,
+             period104$freq,
+             decreasing = TRUE) 
+pos[1:3]
+
+# La posición 1 en order se debe ignorar
+max1 <- period104$freq[71]
+max1
+
+max2 <- period104$freq[154]
+max2
+
+max3 <- period104$freq[309]
+max3
+
+is.ts(caj104) # Verificar la serie de tiempo
+
+# El primer "pico" ocurre en: max1
+abline(v = max1, lty = "dotted", col = "red")
+# Esto implica que el periodo es:
+# Donde 365 es la frecuencia de la Serie
+periodo1 <- 365/max1
+periodo1
+
+# El segundo "pico" ocurre en: max2
+abline(v = max2, lty = "dotted", col = "blue")
+# Esto implica que el periodo es:
+periodo2 <- 365/max2
+periodo2
+
+# El tercer "pico" ocurre en: 0.09
+abline(v = max3, lty = "dotted", col = "magenta")
+
+# Esto implica que el periodo es:
+periodo3 <- 365/max3
+periodo3
+
+```
+```{r}
+plot(stl(caj104,
+         s.window = "periodic"))
+```
+
+```{r}
+# Con periodo = 15
+
+auto.arima(caj104)
+```
+
+```{r}
+fit <- arima(caj104,
+             order = c(2,1,2),
+             seasonal = list(order = c(1,1,1),
+                             period = 15))
+
+LH.pred <- predict(fit,n.ahead = 48)
+
+layout(matrix(c(1,1,2,3), 2, 2, byrow = TRUE))
+
+plot(caj104,
+     xlim = c(2008,2011), 
+     type = "o")
+
+lines(LH.pred$pred, col = "green",
+      type = "o")
+
+lines(LH.pred$pred + 2*LH.pred$se, 
+      col = "green",
+      lty = 3,
+      type = "o")
+
+lines(LH.pred$pred - 2*LH.pred$se,
+      col = "green",
+      lty = 3,
+      type = "o")
+
+acf(caj104, main = "Autocorrelación Simple", 
+    col = "black",
+    ylim = c(-1,1))
+
+pacf(caj104,main = "Autocorrelación Parcial", 
+     col = "black",
+     ylim = c(-1,1))
+```
+## Modelo de Holt-Winters
+
+```{r}
+
+plot(caj104, type = "o")
+
+res <- HoltWinters(caj104)
+plot(res)
+
+
+plot(caj104,
+     xlim = c(2008,2011))
+
+lines(predict(res,n.ahead = 48), col = 2)
+```
+
+```{r}
+
+```
+
