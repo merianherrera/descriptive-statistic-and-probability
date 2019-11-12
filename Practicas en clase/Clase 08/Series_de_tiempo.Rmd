@@ -338,7 +338,4 @@ plot(caj104,
 lines(predict(res,n.ahead = 48), col = 2)
 ```
 
-```{r}
-
-```
 
