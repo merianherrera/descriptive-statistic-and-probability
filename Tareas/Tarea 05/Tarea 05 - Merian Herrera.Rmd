@@ -1,0 +1,115 @@
+---
+output:
+  html_notebook: default
+---
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+
+<center><img src="logo.png" width="500"/></center>
+
+<center><h2><b>Tarea: Sesión 8 <h2></b></center>
+
+<h4><b>Estudiante:</b> Merian Herrera Fuentes <br></h4>
+
+```{r  message=FALSE}
+library(itsmr)
+library(forecast)
+```
+
+<br>
+<div style="background-color:#1D2951;color:white;padding:3px;marging:10px;">
+  <h4><b>&nbsp;&nbsp;&nbsp;I PARTE: Series de tiempo ( 15 puntos C/problema)</b></h4>
+</div>
+<br>
+
+#### **1. Para los datos “deaths"(USA accidental deaths from 1973 to 1978) del paquete itsmr realice 5 predicciones con Box-Jenkins usando un SARIMA(p,d,q)(P,D,Q) (apóyese en la función auto.arima) con periodo 12 Porqué periodo 12?** <br>
+
+> Se utiliza "12" como periodo ya que los datos son anuales y el anno tiene 12 meses.
+
+```{r}
+deaths <- datasets::USAccDeaths
+head(deaths, 100)
+```
+
+```{r}
+# Test de normalidad 
+plot(diff(log(deaths)),type = "l")
+```
+
+```{r}
+# Muestra posibles atipicidades
+plot(diff(deaths),type = "l")
+```
+
+```{r}
+# Mostrar la descompocision de una serie
+plot(stl(deaths, s.window = "periodic"))
+```
+
+
+##### **Predicciones**
+
+```{r}
+# 01 - Box Jenkins
+
+fit <- arima(deaths,
+             order = c(1,2,1),
+             seasonal = list(order = c(2,1,0),
+                             period = 11))
+
+LH.pred <- predict(fit, 
+                   n.ahead = 8)
+LH.pred
+
+
+```
+
+
+#### **2. Para el Caj101 realice una predicción con Box-Jenkins usando un SARIMA(p,d,q)(P,D,Q) (apóyese en la función auto.arima) con el periodo más adecuado.** <br>
+
+```{r}
+cajero <- read.csv("cajero101.csv", header = F, sep = ';', dec = '.' )
+head(cajero, 100)
+```
+
+
+<br>
+<div style="background-color:#1D2951;color:white;padding:3px;marging:10px;">
+  <h4><b>&nbsp;&nbsp;&nbsp;II PARTE: Series de tiempo Holt-Winters ( 10 puntos C/problema)</b></h4>
+</div>
+<br>
+
+#### **3. Genere una modelo de serie de tiempo para los dos casos anteriores, pero usando el método de Holt-Winter**
+
+##### **Modelo 01 - Deaths**
+
+```{r}
+plot(deaths, type = "o")
+
+res <- HoltWinters(deaths)
+plot(res)
+
+
+plot(deaths,
+     xlim = c(2008,2011))
+
+lines(predict(res,n.ahead = 48), col = 2)
+```
+
+##### **Modelo 02 - Cajero**
+
+```{r}
+# plot(cajero, type = "o")
+
+res <- HoltWinters(cajero)
+plot(res)
+
+
+plot(cajero,
+     xlim = c(2008,2011))
+
+lines(predict(res,n.ahead = 48), col = 2)
+```
+
+
