@@ -51,28 +51,98 @@ plot(stl(deaths, s.window = "periodic"))
 ##### **Predicciones**
 
 ```{r}
-# 01 - Box Jenkins
-
 fit <- arima(deaths,
              order = c(1,2,1),
              seasonal = list(order = c(2,1,0),
-                             period = 11))
+                             period = 12))
 
 LH.pred <- predict(fit, 
                    n.ahead = 8)
 LH.pred
-
-
 ```
 
+```{r}
+fit <- arima(deaths,
+             order = c(2,2,2),
+             seasonal = list(order = c(2,1,0),
+                             period = 12))
+
+LH.pred <- predict(fit, 
+                   n.ahead = 8)
+LH.pred
+```
+
+
+```{r}
+fit <- arima(deaths,
+             order = c(1,1,2),
+             seasonal = list(order = c(2,1,0),
+                             period = 12))
+
+LH.pred <- predict(fit, 
+                   n.ahead = 8)
+LH.pred
+```
+
+```{r}
+fit <- arima(deaths,
+             order = c(2,1,2),
+             seasonal = list(order = c(2,1,0),
+                             period = 12))
+
+LH.pred <- predict(fit, 
+                   n.ahead = 8)
+LH.pred
+```
+
+```{r}
+fit <- arima(deaths,
+             order = c(2,2,1),
+             seasonal = list(order = c(2,1,0),
+                             period = 12))
+
+LH.pred <- predict(fit, 
+                   n.ahead = 8)
+LH.pred
+```
 
 #### **2. Para el Caj101 realice una predicción con Box-Jenkins usando un SARIMA(p,d,q)(P,D,Q) (apóyese en la función auto.arima) con el periodo más adecuado.** <br>
 
 ```{r}
-cajero <- read.csv("cajero101.csv", header = F, sep = ';', dec = '.' )
+cajero <- read.csv("cajero104.csv", header = F, sep = ';', dec = '.' )
 head(cajero, 100)
 ```
 
+```{r}
+res <- spec.pgram(cajero, log = "no")
+data_order <- order(res$spec,res$freq,decreasing = TRUE)  
+
+max1 <- res$freq[71]
+max2 <- res$freq[154]
+max3 <- res$freq[309]
+
+
+periodo1 <- 1/max1
+periodo1
+
+periodo2 <- 1/max2
+periodo2
+
+periodo3 <- 1/max3
+periodo3
+```
+
+
+```{r}
+fit <- arima(deaths,
+             order = c(2,2,1),
+             seasonal = list(order = c(2,1,0),
+                             period = periodo3))
+
+LH.pred <- predict(fit, 
+                   n.ahead = 8)
+LH.pred
+```
 
 <br>
 <div style="background-color:#1D2951;color:white;padding:3px;marging:10px;">
@@ -92,7 +162,7 @@ plot(res)
 
 
 plot(deaths,
-     xlim = c(2008,2011))
+     xlim = c(1974,1979))
 
 lines(predict(res,n.ahead = 48), col = 2)
 ```
@@ -105,9 +175,6 @@ lines(predict(res,n.ahead = 48), col = 2)
 res <- HoltWinters(cajero)
 plot(res)
 
-
-plot(cajero,
-     xlim = c(2008,2011))
 
 lines(predict(res,n.ahead = 48), col = 2)
 ```
